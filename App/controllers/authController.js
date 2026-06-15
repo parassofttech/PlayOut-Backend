@@ -1,4 +1,5 @@
 const bcrypt =  require("bcrypt")
+const jwt = require("jsonwebtoken")
 const userModel = require("../models/User")
 
 const signUp = async (req,res)=>{
@@ -15,7 +16,7 @@ const signUp = async (req,res)=>{
         password
     })
     usersModel.password = await bcrypt.hash(password,10)
-    await userModel.save()
+    await usersModel.save()
         res.status(201).json({message:"signUp sucessfully",
             success:true
         })
@@ -24,19 +25,33 @@ const signUp = async (req,res)=>{
    }
 }
 
-const login = (req,res)=>{
-     let {email, password} = req.body
-    let user = new userModel({
-        email,
-        password
-    })
-    user.save().then(()=>{
-        res.send({status:1,message:"Login sucessfully"})
-    }).catch((err)=>{
-        console.log(err)
-        res.send({status:1,message:"Login does nat sucessfully"})
-        
-    })
+const login = async(req,res)=>{
+    try{
+
+       const {email,password}= req.body
+       const user = await userModel.findOne({email})
+       if(!user){
+        return res.status(409).json({message:"Auth failed user or password does not exist"})
+       }
+      const isPassword = await bcrypt.compare(password,user.password)
+      if(!isPassword){
+        return res.status(409).json({message:"Auth failed user or password does not exist"})
+      }
+
+      const jwtToken = jwt.sign(
+        {email:user.email,_id:user._id},
+        process.env.JWT_SECRET,
+        {expiresIn: '24h'}
+)
+     res.status(201).json({message:"signUp sucessfully",
+            success:true,
+            jwtToken,
+            email,
+            user:user.name
+        })
+   } catch (err){
+        res.status(500).json({message:"Internal server error", success:false,error:err})
+   }
 }
 
 module.exports ={signUp,login}
