@@ -15,4 +15,17 @@ const signUp = (req,res)=>{
     })
 }
 
-module.exports ={signUp}
+const login = (req,res)=>{
+     let {email, password} = req.body
+    let user = new userModel({
+        email,
+        password
+    })
+    user.save().then(()=>{
+        res.send({status:1,message:"Login sucessfully"})
+    }).catch((err)=>{
+        res.send({status:1,message:"Login does nat sucessfully"})
+    })
+}
+
+module.exports ={signUp,login}
