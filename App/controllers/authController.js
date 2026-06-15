@@ -1,18 +1,27 @@
+const bcrypt =  require("bcrypt")
 const userModel = require("../models/User")
 
-const signUp = (req,res)=>{
+const signUp = async (req,res)=>{
 
-    let {name,email, password} = req.body
-    let user = new userModel({
+   try{
+    const {name,email, password} = req.body
+    const user =await userModel.findOne({email})
+    if(user){
+        return res.status(409).json({message:"user is alredy exist, you can login", success:false})
+    }
+    let usersModel = new userModel({
         name,
         email,
         password
     })
-    user.save().then(()=>{
-        res.send({status:1,message:"signUp sucessfully"})
-    }).catch((err)=>{
-        res.send({status:1,message:"signUp does nat sucessfully"})
-    })
+    usersModel.password = await bcrypt.hash(password,10)
+    await userModel.save()
+        res.status(201).json({message:"signUp sucessfully",
+            success:true
+        })
+   } catch (err){
+        res.status(500).json({message:"Internal server error", success:false,error:err})
+   }
 }
 
 const login = (req,res)=>{
@@ -24,7 +33,9 @@ const login = (req,res)=>{
     user.save().then(()=>{
         res.send({status:1,message:"Login sucessfully"})
     }).catch((err)=>{
+        console.log(err)
         res.send({status:1,message:"Login does nat sucessfully"})
+        
     })
 }
 
