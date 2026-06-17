@@ -46,9 +46,9 @@ const login = async(req,res)=>{
      res.status(201).json({message:"signUp sucessfully",
             success:true,
             jwtToken,
-            email,
+            email:user.email,
             name: user.name,
-            email: user.email,
+            
 
         })
    } catch (err){
@@ -56,4 +56,20 @@ const login = async(req,res)=>{
    }
 }
 
-module.exports ={signUp,login}
+const getUser= async(req,res)=>{
+    try{
+        const user = await userModel.find()
+        res.status(201).json({
+            success:true,
+            message:"users view",
+            user:user
+        })
+    } catch(err){
+         res.status(201).json({
+            success:false,
+            message:"users not view"
+        })
+    }
+}
+
+module.exports ={signUp,login,getUser}
