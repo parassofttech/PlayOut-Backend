@@ -46,8 +46,10 @@ const login = async(req,res)=>{
      res.status(201).json({message:"signUp sucessfully",
             success:true,
             jwtToken,
+            id:user.id,
             email:user.email,
             name: user.name,
+            user:user
             
 
         })
@@ -75,16 +77,18 @@ const getUser= async(req,res)=>{
 const deleteUser = async(req,res)=>{
     try{
         const userId = req.params.id
-        const user = await userModel.deleteOne(userId)
+        const user = await userModel.deleteOne({_id:userId})
         res.status(201).json({
             success:true,
             message:"users deleted",
+            id:user._id,
             user:user
         })
     } catch(err){
          res.status(201).json({
             success:false,
-            message:"users not deleted"
+            message:"users not deleted",
+            error:err
         })
     }
 }
