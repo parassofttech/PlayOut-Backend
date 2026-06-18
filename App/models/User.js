@@ -14,7 +14,12 @@ const userAuthSchema = mongoose.Schema({
         type:String,
         required:true
     },
-})
+    blocked: { type: Boolean, default: false },
+     emailVerified: {
+        type: Boolean,
+        default: false
+    },
+},{ timestamps: true })
 
 let userModel = mongoose.model("user",userAuthSchema)
 

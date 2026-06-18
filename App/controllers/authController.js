@@ -72,4 +72,42 @@ const getUser= async(req,res)=>{
     }
 }
 
-module.exports ={signUp,login,getUser}
+const deleteUser = async(req,res)=>{
+    try{
+        const userId = req.params.id
+        const user = await userModel.deleteOne(userId)
+        res.status(201).json({
+            success:true,
+            message:"users deleted",
+            user:user
+        })
+    } catch(err){
+         res.status(201).json({
+            success:false,
+            message:"users not deleted"
+        })
+    }
+}
+
+const blockUser = async (req,res)=>{
+  try {
+    const userId = req.params.id;
+
+    const user = await userModel.findById(userId);
+    if (!user)
+      return res.status(404).json({ success: false, message: "User not found" });
+
+    user.blocked = !user.blocked; // toggle
+    await user.save();
+
+    res.json({ success: true, message: `User ${user.blocked ? "blocked" : "unblocked"} successfully` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+module.exports ={signUp,login,getUser,
+    deleteUser,
+    blockUser
+}
